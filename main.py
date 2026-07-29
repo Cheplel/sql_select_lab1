@@ -11,7 +11,8 @@ CREATE TABLE IF NOT EXISTS employees (
     first_name TEXT,
     last_name TEXT,
     department TEXT,
-    salary REAL
+    salary REAL,
+    role TEXT
 )
 """)
 
@@ -51,7 +52,7 @@ print("-------------------End Employee Data-------------------")
 
 
 df_first_five = pd.read_sql("""
-SELECT 
+SELECT
     id AS employeeNumber,
     last_name AS lastName
 FROM employees
@@ -60,12 +61,21 @@ print("---------------------Employee Number and Last Name---------------------")
 print(df_first_five)
 
 # Having last name of employees before employee number
-df_five_reverse = pd.read_sql(
-    "SELECT last_name AS last_name, id AS employee_id FROM employees",
-    conn
-)
-print("---------------------Last Name and ID of Employees---------------------")
+df_five_reverse = pd.read_sql("""
+SELECT
+    last_name AS lastName,
+    id AS employeeNumber
+FROM employees
+""", conn)
+print("---------------------Last Name and Employee Number---------------------")
 print(df_five_reverse)
+
+df_alias = pd.read_sql("""
+SELECT id AS ID
+FROM employees
+""", conn)
+print("---------------------Employee ID---------------------")
+print(df_alias)
 
 
 # Adding a new column to the employees table
@@ -80,9 +90,9 @@ if "role" not in columns:
 
 conn.commit()
 
-cursor.execute("UPDATE employees SET role = 'Software Engineer' WHERE id = 1")
-cursor.execute("UPDATE employees SET role = 'HR Manager' WHERE id = 2")
-cursor.execute("UPDATE employees SET role = 'Financial Analyst' WHERE id = 3")
+cursor.execute("UPDATE employees SET role = 'President' WHERE id = 1")
+cursor.execute("UPDATE employees SET role = 'VP Sales' WHERE id = 2")
+cursor.execute("UPDATE employees SET role = 'VP Marketing ' WHERE id = 3")
 cursor.execute("UPDATE employees SET role = 'IT Support' WHERE id = 4")
 cursor.execute("UPDATE employees SET role = 'Marketing Specialist' WHERE id = 5")
 cursor.execute("UPDATE employees SET role = 'Financial Analyst' WHERE id = 6")
