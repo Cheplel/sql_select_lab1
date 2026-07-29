@@ -72,10 +72,10 @@ for column in cursor.fetchall():
 # STEP 9
 df_day_month_year = pd.read_sql("""
 SELECT 
-orders.orderDate,
-strftime('%d', orders.order_date) AS day,
-strftime('%m', orders.order_date) AS month,
-strftime('%Y', orders.order_date) AS year
+orderDate,
+strftime('%d', orders.orderDate) AS day,
+strftime('%m', orders.orderDate) AS month,
+strftime('%Y', orders.orderDate) AS year
 FROM orders
 """, conn)
 
