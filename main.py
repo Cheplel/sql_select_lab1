@@ -51,7 +51,7 @@ print("-------------------End Employee Data-------------------")
 
 
 df_first_five = pd.read_sql(
-    "SELECT id, last_name FROM employees",
+    "SELECT id AS employee_id, last_name AS last_name FROM employees",
     conn
 )
 print("---------------------ID and Last Name of Employees---------------------")
@@ -59,7 +59,7 @@ print(df_first_five)
 
 # Having last name of employees before employee number
 df_five_reverse = pd.read_sql(
-    "SELECT last_name, id FROM employees",
+    "SELECT last_name AS last_name, id AS employee_id FROM employees",
     conn
 )
 print("---------------------Last Name and ID of Employees---------------------")
@@ -88,7 +88,8 @@ employee_data_with_roles = pd.read_sql("""SELECT * FROM employees""", conn)
 print(employee_data_with_roles)
 
 # Find the length of the last names of employees
-df_name_length = pd.read_sql("SELECT last_name, LENGTH(last_name) as name_length FROM employees", conn)
+df_name_length = pd.read_sql("SELECT last_name FROM employees", conn)
+df_name_length['name_length'] = df_name_length.iloc[:, 0].apply(len)
 print("---------------------Length of Last Names of Employees---------------------")
 print(df_name_length)
 
@@ -148,13 +149,14 @@ print("---------------------Total Amount of All Orders---------------------")
 print(sum_total_price)
 
 # Day, Month, and Year of Orders
+cursor.execute("PRAGMA table_info(orderDetails)")
+columns = [col[1] for col in cursor.fetchall()]
 
-
-# Add order_date column 
-cursor.execute("""
-ALTER TABLE orderDetails
-ADD COLUMN order_date TEXT
-""")
+if "order_date" not in columns:
+    cursor.execute("""
+    ALTER TABLE orderDetails
+    ADD COLUMN order_date TEXT
+    """)
 
 conn.commit()
 
