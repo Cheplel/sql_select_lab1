@@ -50,11 +50,13 @@ print(employee_data)
 print("-------------------End Employee Data-------------------")
 
 
-df_first_five = pd.read_sql(
-    "SELECT id AS employee_id, last_name AS last_name FROM employees",
-    conn
-)
-print("---------------------ID and Last Name of Employees---------------------")
+df_first_five = pd.read_sql("""
+SELECT 
+    id AS employeeNumber,
+    last_name AS lastName
+FROM employees
+""", conn)
+print("---------------------Employee Number and Last Name---------------------")
 print(df_first_five)
 
 # Having last name of employees before employee number
@@ -67,7 +69,14 @@ print(df_five_reverse)
 
 
 # Adding a new column to the employees table
+cursor.execute("PRAGMA table_info(employees)")
+columns = [col[1] for col in cursor.fetchall()]
 
+if "role" not in columns:
+    cursor.execute("""
+    ALTER TABLE employees
+    ADD COLUMN role TEXT
+    """)
 
 conn.commit()
 
@@ -86,6 +95,19 @@ conn.commit()
 print("---------------------Employee Data with Roles---------------------")
 employee_data_with_roles = pd.read_sql("""SELECT * FROM employees""", conn)
 print(employee_data_with_roles)
+
+# Executive and Non Executive employees
+df_executive = pd.read_sql("""
+SELECT *,
+CASE
+    WHEN salary >= 70000 THEN 'Executive'
+    ELSE 'Not Executive'
+END AS role
+FROM employees
+""", conn)
+
+print("---------------------Executive Employees---------------------")
+print(df_executive)
 
 # Find the length of the last names of employees
 df_name_length = pd.read_sql("SELECT last_name FROM employees", conn)
@@ -140,11 +162,14 @@ print("----------------End Order Details Data----------------")
 
 
 # Total amount of all orders
-sum_total = pd.read_sql("""
-SELECT SUM(quantity * price) as total_price
+# Total amount of all orders
+cursor.execute("""
+SELECT SUM(quantity * price)
 FROM orderDetails
-""", conn).sum()
-sum_total_price = sum_total['total_price']
+""")
+
+sum_total_price = cursor.fetchone()
+
 print("---------------------Total Amount of All Orders---------------------")
 print(sum_total_price)
 
@@ -182,7 +207,10 @@ conn.commit()
 
 # Now select the formatted dates
 df_day_month_year = pd.read_sql("""
-SELECT strftime('%Y-%m-%d', order_date) AS day_month_year
+SELECT
+strftime('%d', order_date) AS day,
+strftime('%m', order_date) AS month,
+strftime('%Y', order_date) AS year
 FROM orderDetails
 """, conn)
 
